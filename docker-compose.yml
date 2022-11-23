@@ -5,13 +5,19 @@ services:
     image: postgres:15-alpine
     volumes:
       - db_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
     env_file:
       - ./.env
 
   weather_collector:
     build: ./app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - ./.env
 
